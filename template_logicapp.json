@@ -1,0 +1,346 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subscriptionId": {
+            "type": "string"
+        },
+        "logicapp_name": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        },
+        "connectionName": {
+            "type": "string"
+        },
+        "videoindexerkey": {
+            "type": "string"
+        },
+        "zoommediatoken": {
+            "type": "string"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "name": "[parameters('logicapp_name')]",
+            "apiVersion": "2017-07-01",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_blob_is_added_or_modified_(properties_only)": {
+                            "recurrence": {
+                                "frequency": "Minute",
+                                "interval": 1
+                            },
+                            "splitOn": "@triggerBody()",
+                            "metadata": {
+                                "JTJmdXBsb2Fkcw==": "/uploads"
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/datasets/default/triggers/batch/onupdatedfile",
+                                "queries": {
+                                    "folderId": "JTJmdXBsb2Fkcw==",
+                                    "maxFileCount": 10
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Create_SAS_URI_by_path": {
+                            "runAfter": {
+                                "Initialize_variable:_ZoomMediaToken": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "ExpiryTime": "@{addHours(utcNow(), 6)}",
+                                    "Permissions": "Read"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/datasets/default/CreateSharedLinkByPath",
+                                "queries": {
+                                    "path": "@triggerBody()?['Path']"
+                                }
+                            }
+                        },
+                        "HTTP:_Create_session_at_ZoomMedia": {
+                            "runAfter": {
+                                "HTTP:_Uploade_file_to_VideoIndexer": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "body": {
+                                    "language": "nl"
+                                },
+                                "headers": {
+                                    "X-Zoom-S2T-Token": "@variables('ZoomMediaToken')"
+                                },
+                                "method": "POST",
+                                "uri": "http://ai.zoom-media.nl:8080/api/v1/speech-to-text/session/"
+                            }
+                        },
+                        "HTTP:_Get_VTT_from_ZoomMedia": {
+                            "runAfter": {
+                                "Until_ZoomMedia_is_done": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "headers": {
+                                    "Accept": "text/vtt",
+                                    "X-Zoom-S2T-Token": "@variables('ZoomMediaToken')"
+                                },
+                                "method": "GET",
+                                "uri": "http://ai.zoom-media.nl:8080/api/v1/speech-to-text/session/@{body('HTTP:_Create_session_at_ZoomMedia')['sessionId']}"
+                            }
+                        },
+                        "HTTP:_Update_VTT_at_VideoIndexer": {
+                            "runAfter": {
+                                "HTTP:_Get_VTT_from_ZoomMedia": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "body": "@body('HTTP:_Get_VTT_from_ZoomMedia')",
+                                "headers": {
+                                    "Ocp-Apim-Subscription-Key": "@variables('VideoIndexerKey')"
+                                },
+                                "method": "PUT",
+                                "uri": "https://videobreakdown.azure-api.net/Breakdowns/Api/Partner/Breakdowns/UpdateTranscript/@{body('HTTP:_Uploade_file_to_VideoIndexer')}?language=Nl-NL&setAsSourceLanguage=true"
+                            }
+                        },
+                        "HTTP:_Upload_file_to_ZoomMedia": {
+                            "runAfter": {
+                                "HTTP:_Create_session_at_ZoomMedia": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "body": {
+                                    "video_url": "@body('Create_SAS_URI_by_path')?['WebUrl']"
+                                },
+                                "headers": {
+                                    "X-Zoom-S2T-Token": "@variables('ZoomMediaToken')"
+                                },
+                                "method": "POST",
+                                "uri": "http://ai.zoom-media.nl:8080/api/v1/speech-to-text/session/@{body('HTTP:_Create_session_at_ZoomMedia')['sessionId']}"
+                            }
+                        },
+                        "HTTP:_Uploade_file_to_VideoIndexer": {
+                            "runAfter": {
+                                "Create_SAS_URI_by_path": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "headers": {
+                                    "Ocp-Apim-Subscription-Key": "@variables('VideoIndexerKey')"
+                                },
+                                "method": "POST",
+                                "uri": "https://videobreakdown.azure-api.net/Breakdowns/Api/Partner/Breakdowns?name=@{encodeUriComponent(triggerBody()?['Name'])}&videoURL=@{encodeUriComponent(body('Create_SAS_URI_by_path')?['WebUrl'])}&privacy=Private"
+                            }
+                        },
+                        "Initialize_variable:_VideoIndexerKey": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "VideoIndexerKey",
+                                        "type": "String",
+                                        "value": "[parameters('videoindexerkey')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable:_ZoomMediaToken": {
+                            "runAfter": {
+                                "Initialize_variable:_VideoIndexerKey": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ZoomMediaToken",
+                                        "type": "String",
+                                        "value": "[parameters('zoommediatoken')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Until": {
+                            "actions": {
+                                "Delay": {
+                                    "runAfter": {},
+                                    "type": "Wait",
+                                    "inputs": {
+                                        "interval": {
+                                            "count": 1,
+                                            "unit": "Minute"
+                                        }
+                                    }
+                                },
+                                "HTTP:_Check_update_progress_at_VideoIndexer": {
+                                    "runAfter": {
+                                        "Delay": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "headers": {
+                                            "Ocp-Apim-Subscription-Key": "@variables('VideoIndexerKey')"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://videobreakdown.azure-api.net/Breakdowns/Api/Partner/Breakdowns/@{body('HTTP:_Uploade_file_to_VideoIndexer')}/State"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "HTTP:_Update_VTT_at_VideoIndexer": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": "@equals(body('HTTP:_Check_update_progress_at_VideoIndexer')['State'], 'Processed')",
+                            "limit": {
+                                "count": 60,
+                                "timeout": "PT1H"
+                            },
+                            "type": "Until"
+                        },
+                        "Until_VideoIndexer_is_done": {
+                            "actions": {
+                                "Delay_progress_at_VideoIndexer": {
+                                    "runAfter": {},
+                                    "type": "Wait",
+                                    "inputs": {
+                                        "interval": {
+                                            "count": 1,
+                                            "unit": "Minute"
+                                        }
+                                    }
+                                },
+                                "HTTP:_Check_progress_at_VideoIndexer": {
+                                    "runAfter": {
+                                        "Delay_progress_at_VideoIndexer": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "headers": {
+                                            "Ocp-Apim-Subscription-Key": "@variables('VideoIndexerKey')"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://videobreakdown.azure-api.net/Breakdowns/Api/Partner/Breakdowns/@{body('HTTP:_Uploade_file_to_VideoIndexer')}/State"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "HTTP:_Upload_file_to_ZoomMedia": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": "@equals(body('HTTP:_Check_progress_at_VideoIndexer')['State'], 'Processed')",
+                            "limit": {
+                                "count": 60,
+                                "timeout": "PT1H"
+                            },
+                            "type": "Until"
+                        },
+                        "Until_ZoomMedia_is_done": {
+                            "actions": {
+                                "Delay_progress_at_ZoomMedia": {
+                                    "runAfter": {},
+                                    "type": "Wait",
+                                    "inputs": {
+                                        "interval": {
+                                            "count": 1,
+                                            "unit": "Minute"
+                                        }
+                                    }
+                                },
+                                "HTTP:_Check_progress_at_ZoomMedia": {
+                                    "runAfter": {
+                                        "Delay_progress_at_ZoomMedia": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "headers": {
+                                            "X-Zoom-S2T-Token": "@variables('ZoomMediaToken')"
+                                        },
+                                        "method": "GET",
+                                        "uri": "http://ai.zoom-media.nl:8080/api/v1/speech-to-text/session/@{body('HTTP:_Create_session_at_ZoomMedia')['sessionId']}"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Until_VideoIndexer_is_done": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": "@equals(body('HTTP:_Check_progress_at_ZoomMedia')['done'], true)",
+                            "limit": {
+                                "count": 60,
+                                "timeout": "PT1H"
+                            },
+                            "type": "Until"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureblob": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connectionName'))]",
+                                "connectionName": "[parameters('connectionName')]",
+                                "id": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/azureblob')]"
+                            }
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        }
+    ]
+}
