@@ -1,10 +1,11 @@
 ## REQUIRED TO CHANGE
-# Video Indexer and Zoom Media key values; need to be set
-$videoindexerkey="xxxxxxxxxxxxxxxxxxxxxx"
-$zoommediatoken="yyyyyyyyyyyyyyyyyyyyyy"
+# Video Indexer and Zoom Media keys; need to be set here or via parameters
+param (
+    [string]$videoindexerkey="xxxxxxxxxxxxxxxxxxxxxx",
+    [string]$zoommediatoken="yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+ )
 
-## OPTIONAL TO CHANGE
-# Resource location and naming; can optionally be modified
+# Resource location and naming
 $location="West Europe"
 $randomvalue=$(Get-Random)
 $resourcegroup="rg" + $randomvalue
@@ -16,7 +17,7 @@ $logicappname="logic" + $randomvalue
 New-AzureRmResourceGroup -Name $resourcegroup -Location $location
 
 # Creating Storage Account and Container called "uploads"
-New-AzureRmStorageAccount -ResourceGroupName $resourceGroup -Name $storageaccountname -Location $location -SkuName Standard_LRS -Kind StorageV2
+New-AzureRmStorageAccount -ResourceGroupName $resourceGroup -Name $storageaccountname -Location $location -SkuName Standard_LRS
 Set-AzureRmCurrentStorageAccount -StorageAccountName $storageaccountname -ResourceGroupName $resourceGroup
 New-AzureStorageContainer -Name "uploads"
 
@@ -27,7 +28,7 @@ $subscriptionId = (Get-AzureRmContext).Subscription.Id
 $storageaccountkey = (Get-AzureRmStorageAccountKey -ResourceGroupName $resourcegroup -Name $storageaccountname).Value[0]
 
 # Creating API Connection
-New-AzureRmResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName $resourcegroup `
+New-AzureRmResourceGroupDeployment -Name APIConnectionDeployment -ResourceGroupName $resourcegroup `
     -TemplateFile .\template_apiconnection.json `
     -subscriptionId $subscriptionId `
     -location $location `
@@ -36,7 +37,7 @@ New-AzureRmResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName $r
     -storageAccountKey $storageaccountkey 
 
 # Creating Logic App
-New-AzureRmResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName $resourcegroup `
+New-AzureRmResourceGroupDeployment -Name LogicAppDeployment -ResourceGroupName $resourcegroup `
     -TemplateFile .\template_logicapp.json `
     -subscriptionId $subscriptionId `
     -logicapp_name $logicappname `

@@ -94,7 +94,7 @@
                         },
                         "HTTP:_Create_session_at_ZoomMedia": {
                             "runAfter": {
-                                "HTTP:_Uploade_file_to_VideoIndexer": [
+                                "HTTP:_Upload_file_to_VideoIndexer": [
                                     "Succeeded"
                                 ]
                             },
@@ -139,7 +139,7 @@
                                     "Ocp-Apim-Subscription-Key": "@variables('VideoIndexerKey')"
                                 },
                                 "method": "PUT",
-                                "uri": "https://videobreakdown.azure-api.net/Breakdowns/Api/Partner/Breakdowns/UpdateTranscript/@{body('HTTP:_Uploade_file_to_VideoIndexer')}?language=Nl-NL&setAsSourceLanguage=true"
+                                "uri": "https://videobreakdown.azure-api.net/Breakdowns/Api/Partner/Breakdowns/UpdateTranscript/@{body('HTTP:_Upload_file_to_VideoIndexer')}?language=Nl-NL&setAsSourceLanguage=true"
                             }
                         },
                         "HTTP:_Upload_file_to_ZoomMedia": {
@@ -160,7 +160,7 @@
                                 "uri": "http://ai.zoom-media.nl:8080/api/v1/speech-to-text/session/@{body('HTTP:_Create_session_at_ZoomMedia')['sessionId']}"
                             }
                         },
-                        "HTTP:_Uploade_file_to_VideoIndexer": {
+                        "HTTP:_Upload_file_to_VideoIndexer": {
                             "runAfter": {
                                 "Create_SAS_URI_by_path": [
                                     "Succeeded"
@@ -205,7 +205,7 @@
                                 ]
                             }
                         },
-                        "Until": {
+                        "Until_VideoIndexer_is_done_reindexing": {
                             "actions": {
                                 "Delay": {
                                     "runAfter": {},
@@ -217,7 +217,7 @@
                                         }
                                     }
                                 },
-                                "HTTP:_Check_update_progress_at_VideoIndexer": {
+                                "HTTP:_Check_reindexing_progress_at_VideoIndexer": {
                                     "runAfter": {
                                         "Delay": [
                                             "Succeeded"
@@ -229,7 +229,7 @@
                                             "Ocp-Apim-Subscription-Key": "@variables('VideoIndexerKey')"
                                         },
                                         "method": "GET",
-                                        "uri": "https://videobreakdown.azure-api.net/Breakdowns/Api/Partner/Breakdowns/@{body('HTTP:_Uploade_file_to_VideoIndexer')}/State"
+                                        "uri": "https://videobreakdown.azure-api.net/Breakdowns/Api/Partner/Breakdowns/@{body('HTTP:_Upload_file_to_VideoIndexer')}/State"
                                     }
                                 }
                             },
@@ -238,14 +238,14 @@
                                     "Succeeded"
                                 ]
                             },
-                            "expression": "@equals(body('HTTP:_Check_update_progress_at_VideoIndexer')['State'], 'Processed')",
+                            "expression": "@equals(body('HTTP:_Check_reindexing_progress_at_VideoIndexer')['State'], 'Processed')",
                             "limit": {
                                 "count": 60,
                                 "timeout": "PT1H"
                             },
                             "type": "Until"
                         },
-                        "Until_VideoIndexer_is_done": {
+                        "Until_VideoIndexer_is_done_indexing": {
                             "actions": {
                                 "Delay_progress_at_VideoIndexer": {
                                     "runAfter": {},
@@ -257,7 +257,7 @@
                                         }
                                     }
                                 },
-                                "HTTP:_Check_progress_at_VideoIndexer": {
+                                "HTTP:_Check_indexing_progress_at_VideoIndexer": {
                                     "runAfter": {
                                         "Delay_progress_at_VideoIndexer": [
                                             "Succeeded"
@@ -269,7 +269,7 @@
                                             "Ocp-Apim-Subscription-Key": "@variables('VideoIndexerKey')"
                                         },
                                         "method": "GET",
-                                        "uri": "https://videobreakdown.azure-api.net/Breakdowns/Api/Partner/Breakdowns/@{body('HTTP:_Uploade_file_to_VideoIndexer')}/State"
+                                        "uri": "https://videobreakdown.azure-api.net/Breakdowns/Api/Partner/Breakdowns/@{body('HTTP:_Upload_file_to_VideoIndexer')}/State"
                                     }
                                 }
                             },
@@ -278,7 +278,7 @@
                                     "Succeeded"
                                 ]
                             },
-                            "expression": "@equals(body('HTTP:_Check_progress_at_VideoIndexer')['State'], 'Processed')",
+                            "expression": "@equals(body('HTTP:_Check_indexing_progress_at_VideoIndexer')['State'], 'Processed')",
                             "limit": {
                                 "count": 60,
                                 "timeout": "PT1H"
@@ -314,7 +314,7 @@
                                 }
                             },
                             "runAfter": {
-                                "Until_VideoIndexer_is_done": [
+                                "Until_VideoIndexer_is_done_indexing": [
                                     "Succeeded"
                                 ]
                             },
