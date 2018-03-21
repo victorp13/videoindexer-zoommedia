@@ -20,6 +20,9 @@
         "storageAccountKey": {
             "type": "string"
         },
+        "containerName": {
+            "type": "string"
+        },
         "videoindexerkey": {
             "type": "string"
         },
@@ -73,7 +76,7 @@
                             },
                             "splitOn": "@triggerBody()",
                             "metadata": {
-                                "JTJmdXBsb2Fkcw==": "/uploads"
+                                "[base64(concat('%2f', parameters('containerName')))]": "[concat('/', parameters('containerName'))]"
                             },
                             "type": "ApiConnection",
                             "inputs": {
@@ -85,8 +88,8 @@
                                 "method": "get",
                                 "path": "/datasets/default/triggers/batch/onupdatedfile",
                                 "queries": {
-                                    "folderId": "JTJmdXBsb2Fkcw==",
-                                    "maxFileCount": 10
+                                    "folderId": "[base64(concat('%2f', parameters('containerName')))]",
+                                    "maxFileCount": 1
                                 }
                             }
                         }
@@ -264,8 +267,8 @@
                             },
                             "expression": "@equals(body('HTTP:_Check_reindexing_progress_at_VideoIndexer')['State'], 'Processed')",
                             "limit": {
-                                "count": 60,
-                                "timeout": "PT1H"
+                                "count": 120,
+                                "timeout": "PT2H"
                             },
                             "type": "Until"
                         },
@@ -304,8 +307,8 @@
                             },
                             "expression": "@equals(body('HTTP:_Check_indexing_progress_at_VideoIndexer')['State'], 'Processed')",
                             "limit": {
-                                "count": 60,
-                                "timeout": "PT1H"
+                                "count": 120,
+                                "timeout": "PT2H"
                             },
                             "type": "Until"
                         },
@@ -344,8 +347,8 @@
                             },
                             "expression": "@equals(body('HTTP:_Check_progress_at_ZoomMedia')['done'], true)",
                             "limit": {
-                                "count": 60,
-                                "timeout": "PT1H"
+                                "count": 120,
+                                "timeout": "PT2H"
                             },
                             "type": "Until"
                         }
