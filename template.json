@@ -5,13 +5,19 @@
         "subscriptionId": {
             "type": "string"
         },
-        "logicapp_name": {
-            "type": "string"
-        },
         "location": {
             "type": "string"
         },
         "connectionName": {
+            "type": "string"
+        },
+        "logicapp_name": {
+            "type": "string"
+        },
+        "storageAccountName": {
+            "type": "string"
+        },
+        "storageAccountKey": {
             "type": "string"
         },
         "videoindexerkey": {
@@ -23,6 +29,24 @@
     },
     "variables": {},
     "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "name": "[parameters('connectionName')]",
+            "apiVersion": "2016-06-01",
+            "location": "[parameters('location')]",
+            "scale": null,
+            "properties": {
+                "displayName": "[parameters('storageAccountName')]",
+                "parameterValues": {
+                    "accountName": "[parameters('storageAccountName')]",
+                    "accessKey": "[parameters('storageAccountKey')]"
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'),'/managedApis/azureblob')]"
+                }
+            },
+            "dependsOn": []
+        },
         {
             "type": "Microsoft.Logic/workflows",
             "name": "[parameters('logicapp_name')]",
@@ -340,7 +364,9 @@
                     }
                 }
             },
-            "dependsOn": []
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('connectionName'))]"
+            ]
         }
     ]
 }

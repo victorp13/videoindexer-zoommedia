@@ -27,21 +27,14 @@ $subscriptionId = (Get-AzureRmContext).Subscription.Id
 # Retrieving Storage Account Key
 $storageaccountkey = (Get-AzureRmStorageAccountKey -ResourceGroupName $resourcegroup -Name $storageaccountname).Value[0]
 
-# Creating API Connection
+# Creating API Connection and Logic App
 New-AzureRmResourceGroupDeployment -Name APIConnectionDeployment -ResourceGroupName $resourcegroup `
-    -TemplateFile .\template_apiconnection.json `
+    -TemplateFile .\template.json `
     -subscriptionId $subscriptionId `
     -location $location `
     -connectionName $connectionname `
-    -storageAccountName $storageaccountname `
-    -storageAccountKey $storageaccountkey 
-
-# Creating Logic App
-New-AzureRmResourceGroupDeployment -Name LogicAppDeployment -ResourceGroupName $resourcegroup `
-    -TemplateFile .\template_logicapp.json `
-    -subscriptionId $subscriptionId `
     -logicapp_name $logicappname `
-    -location $location `
-    -connectionName $connectionname `
+    -storageAccountName $storageaccountname `
+    -storageAccountKey $storageaccountkey `
     -videoindexerkey $videoindexerkey `
     -zoommediatoken $zoommediatoken
