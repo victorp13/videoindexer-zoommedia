@@ -23,7 +23,7 @@ The following resources are deployed:
 4. sends the file to Zoom Media for speech-to-text.
 5. Finally the resulting VTT is passed back into Video Indexer.
 
-![Solution flow](solution_flow.png)
+![Solution architecture](solution_architecture.png)
 
 ## How to get the Video Indexer key
 The Video Indexer service does not require signup; one can simply sign in using existing credentials. Once signed in navigate to the [API Reference](https://videobreakdown.portal.azure-api.net/). Sign in here and register for the API on the [Products](https://videobreakdown.portal.azure-api.net/products) page. Once this is done, the [Profile](https://videobreakdown.portal.azure-api.net/developer) page will show the primary and secondary key.
