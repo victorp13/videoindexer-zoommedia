@@ -1,9 +1,9 @@
 # Video Indexer + Zoom Media
 
 ## Introduction
-The Microsoft [Video Indexer](https://www.videoindexer.ai/) service extracts valuable insights from videos, such as spoken words, faces, characters and emotions. The service supports many of the major world languages but unfortunately does not support Dutch. Our partner Zoom Media offers a [speech-to-text](https://www.zoom-media.nl/en/speech-to-text/) service that does support Dutch. 
+The Microsoft [Video Indexer](https://www.videoindexer.ai/) service extracts valuable insights from videos, such as spoken words, faces, characters and emotions. The service supports many of the major world languages (but not every language, e.g. Dutch). But there are companies such as Zoom Media that offer a [speech-to-text](https://www.zoom-media.nl/en/speech-to-text/) service in other languages (e.g. Dutch). Below is a description of how you can use a transcription service provider (such as Zoom Media) in conjunction with Microsoft Video Indexer.
 
-This PowerShell script will deploy a set of Azure resources that integrate the Microsoft Video Indexer service with Zoom Media's speech-to-text service.
+The PowerShell script included in this repo will deploy a set of Azure resources that integrate the Microsoft Video Indexer service with Zoom Media's speech-to-text service. This script can be easily updated to work with other transcription service providers to cover a broader range of languages.
 
 ## Deployment
 `.\deploy.ps1 -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy`
@@ -17,11 +17,11 @@ The following resources are deployed:
 * Logic App
 
 ## Solution flow
-1. A file is dropped into Blob Storage and
-2. picked up by the Logic App that
-3. sends the file to Video Indexer for analytics and after that
-4. sends the file to Zoom Media for speech-to-text.
-5. Finally the resulting VTT is passed back into Video Indexer.
+1. A file is dropped into Blob Storage
+2. Logic App watches for new blobs being added
+3. Logic App sends the file to Video Indexer and Zoom Media
+4. Zoom Media generates a VVT file based on the Dutch language
+5. Logic Apps passes the resulting VTT  back into Video Indexer
 
 ![Solution architecture](solution_architecture.png)
 
