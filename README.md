@@ -51,3 +51,7 @@ Once signed up, a token can be generated on the Settings page
 As HTTP calls in Logic Apps time out after 2 minutes, any upload that takes longer will time out the basic logic app. The advanced template takes care of that by making use of callbacks for both the VideoIndexer upload as well as the ZoomMedia upload. 
 
 This advanced template will generate 3 separate Logic Apps, each taking care of one upload. The VideoIndexer and Logic Apps keys are present in each of these. 
+
+
+## More information
+For more information on how to use the Video Indexer API please see [this blog post](https://blogs.msdn.microsoft.com/golive/2018/03/26/using-microsoft-azure-video-indexer/) by Greg Oliver (@sebastus).
