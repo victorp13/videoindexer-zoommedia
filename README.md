@@ -17,7 +17,7 @@ The following resources are deployed:
 * Logic App
 
 ## Solution flow
-1. A file is dropped into Blob Storage
+1. A file is dropped into Blob Storage ("uploads" container by default)
 2. Logic App watches for new blobs being added
 3. Logic App sends the file to Video Indexer and Zoom Media
 4. Zoom Media generates a VVT file based on the Dutch language
@@ -46,3 +46,8 @@ Once signed up, a token can be generated on the Settings page
 ## Logic app flow
 
 ![Logic App flow](logic_app_flow.png)
+
+## Advanced template
+As HTTP calls in Logic Apps time out after 2 minutes, any upload that takes longer will time out the basic logic app. The advanced template takes care of that by making use of callbacks for both the VideoIndexer upload as well as the ZoomMedia upload. 
+
+This advanced template will generate 3 separate Logic Apps, each taking care of one upload. The VideoIndexer and Logic Apps keys are present in each of these. 
