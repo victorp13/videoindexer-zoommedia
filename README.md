@@ -45,4 +45,4 @@ Once signed up, a token can be generated on the Settings page
 
 ## Logic app flow
 
-![Logic App flow](logicapp_flow.png)
+![Logic App flow](logic_app_flow.png)
