@@ -52,6 +52,14 @@ As HTTP calls in Logic Apps time out after 2 minutes, any upload that takes long
 
 This advanced template will generate 3 separate Logic Apps, each taking care of one upload. The VideoIndexer and Logic Apps keys are present in each of these. 
 
+![Logic App flow advanced #1](logic_app_flow_adv1.png)
+*Logic app #1*
+
+![Logic App flow advanced #2](logic_app_flow_adv2.png)
+*Logic app #2*
+
+![Logic App flow advanced #3](logic_app_flow_adv3.png)
+*Logic app #3*
 
 ## More information
 For more information on how to use the Video Indexer API please see [this blog post](https://blogs.msdn.microsoft.com/golive/2018/03/26/using-microsoft-azure-video-indexer/) by Greg Oliver (@sebastus).
