@@ -1,5 +1,8 @@
 # Video Indexer + Zoom Media
 
+## NEW: API v2 template
+The folder [v2/](v2/) contains a new advanced template that integrates with the newly released [v2 API](https://api-portal.videoindexer.ai/). Please use this script for future-proofness and new setups. The [old v1 API](https://videobreakdown.portal.azure-api.net/) is deprecated and will be removed by August 1st, 2018. 
+
 ## Introduction
 The Microsoft [Video Indexer](https://www.videoindexer.ai/) service extracts valuable insights from videos, such as spoken words, faces, characters and emotions. The service supports many of the major world languages (but not every language, e.g. Dutch). But there are companies such as Zoom Media that offer a [speech-to-text](https://www.zoom-media.nl/en/speech-to-text/) service in other languages (e.g. Dutch). Below is a description of how you can use a transcription service provider (such as Zoom Media) in conjunction with Microsoft Video Indexer.
 
