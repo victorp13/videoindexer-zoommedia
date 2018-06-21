@@ -56,9 +56,9 @@ Once signed up, a token can be generated on the Settings page
 ![Zoom Media settings](zm_settings.png)
 
 ## Additional notes
-* Currently the Logic App supports Dutch but this can be changed in the app itself. The steps _HTTP: Create session at ZoomMedia_ and _HTTP: Update VTT at VideoIndexer_ contain language strings that can be changed.
-
 * Note that the file will be indexed _twice_ by VideoIndexer: Once during the initial upload, and once when the VTT is updated in the end. Please wait for the Logic App to completely finish before expecting the video Transcript to be correct in the Video Indexer UI.
+
+* A new version of these Logic Apps using native Video Indexer Connector will be released soon.
 
 ## Logic app flow
 
@@ -78,3 +78,4 @@ The template generates 3 separate Logic Apps, each taking care of one step in th
 
 ## More information
 For more information on how to use the Video Indexer API please see [this blog post](https://blogs.msdn.microsoft.com/golive/2018/03/26/using-microsoft-azure-video-indexer/) by Greg Oliver (@sebastus).
+
