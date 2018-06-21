@@ -1,10 +1,13 @@
 ## REQUIRED PARAMETERS
-# Syntax: ".\deploy.ps1 -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+# Syntax: ".\deploy.ps1 -videoindexerregion aaa -videoindexeraccount bbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -language nl-nl
 
 # Video Indexer and Zoom Media keys
 param (
+    [string]$videoindexerregion,
+    [string]$videoindexeraccount,
     [string]$videoindexerkey,
-    [string]$zoommediatoken
+    [string]$zoommediatoken,
+    [string]$language
  )
 
 # Resource location and naming
@@ -40,5 +43,8 @@ New-AzureRmResourceGroupDeployment -Name APIConnectionDeployment -ResourceGroupN
     -storageAccountName $storageaccountname `
     -storageAccountKey $storageaccountkey `
     -containerName $containername `
+    -videoindexerregion $videoindexerregion `
+    -videoindexeraccount $videoindexeraccount `
     -videoindexerkey $videoindexerkey `
-    -zoommediatoken $zoommediatoken
+    -zoommediatoken $zoommediatoken `
+    -language $language

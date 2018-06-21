@@ -1,35 +1,49 @@
 # Video Indexer + Zoom Media
 
-## NEW: API v2 template
-The folder [v2/](v2/) contains a new advanced template that integrates with the newly released [v2 API](https://api-portal.videoindexer.ai/). Please use this script for future-proofness and new setups. The [old v1 API](https://videobreakdown.portal.azure-api.net/) is deprecated and will be removed by August 1st, 2018. 
-
 ## Introduction
-The Microsoft [Video Indexer](https://www.videoindexer.ai/) service extracts valuable insights from videos, such as spoken words, faces, characters and emotions. The service supports many of the major world languages (but not every language, e.g. Dutch). But there are companies such as Zoom Media that offer a [speech-to-text](https://www.zoom-media.nl/en/speech-to-text/) service in other languages (e.g. Dutch). Below is a description of how you can use a transcription service provider (such as Zoom Media) in conjunction with Microsoft Video Indexer.
+The Microsoft [Video Indexer](https://www.videoindexer.ai/) service extracts valuable insights from videos, such as spoken words, faces, characters and emotions. The service supports many of the major world languages (but not every language, e.g. Dutch). But there are companies such as Zoom Media that offer a [speech-to-text](https://www.zoommedia.ai/speech-to-text/) service in other languages (e.g. Dutch). Below is a description of how you can use a transcription service provider (such as Zoom Media) in conjunction with Microsoft Video Indexer.
 
 The PowerShell script included in this repo will deploy a set of Azure resources that integrate the Microsoft Video Indexer service with Zoom Media's speech-to-text service. This script can be easily updated to work with other transcription service providers to cover a broader range of languages.
 
 ## Deployment
-`.\deploy.ps1 -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy`
+`.\deploy.ps1 -videoindexerregion aaa -videoindexeraccount bbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -language nl-nl
+`
 
-Note: The two parameters _videoindexerkey_ and _zoommediatoken_ are required.
+The parameters are:
+- videoindexerregion - can be found at the top of the page behind the Account name. The follow values are valid:
+    - "trial"
+    - "northeurope"
+    - "westus2"
+    - "eastasia"
+- videoindexeraccount - can be found on the Settings page
+- videoindexerkey - see "How to get the Video Indexer key" below
+- zoommediatoken - see "How to get the Zoom Media token" below
+- language - currently ZoomMedia supports:
+    - Dutch: "nl-nl"
+    - Flemish: "nl-be"
+    - Norwegian: "nb-no"
+    - Danish: "da-dk"
+    - Swedish: "sv-se"
 
-The following resources are deployed:
+Note: All parameters are required.
+
+When running the script the following resources will be deployed:
 * Resource Group
 * Storage Account
 * API Connection
-* Logic App
+* Three Logic Apps
 
 ## Solution flow
-1. A file is dropped into Blob Storage ("uploads" container by default)
-2. Logic App watches for new blobs being added
-3. Logic App sends the file to Video Indexer and Zoom Media
-4. Zoom Media generates a VVT file based on the Dutch language
-5. Logic Apps passes the resulting VTT  back into Video Indexer
+1. A file is added to the Blob Storage's "uploads" container
+2. Logic App #1 watches this container for new files and sends new files to Video Indexer
+3. Logic App #2 receives a callback from VI and sends the file to Zoom Media
+4. Logic App #3 receices a callback from ZM and sends the resulting VTT to Video Indexer 
+5. Video Indexer will now show the video with transcript in the target language
 
 ![Solution architecture](solution_architecture.png)
 
 ## How to get the Video Indexer key
-The Video Indexer service does not require signup; one can simply sign in using existing credentials. Once signed in navigate to the [API Reference](https://videobreakdown.portal.azure-api.net/). Sign in here and register for the API on the [Products](https://videobreakdown.portal.azure-api.net/products) page. Once this is done, the [Profile](https://videobreakdown.portal.azure-api.net/developer) page will show the primary and secondary key.
+The Video Indexer service does not require signup; one can simply sign in using existing credentials. Once signed in navigate to the [API Reference](https://api-portal.videoindexer.ai/). Sign in here and register for the API on the [Products](https://api-portal.videoindexer.ai/products) page. Once this is done, the [Profile](https://api-portal.videoindexer.ai/developer) page will show the primary and secondary key.
 
 ![Video Indexer Profile](vi_profile.png)
 
@@ -48,21 +62,19 @@ Once signed up, a token can be generated on the Settings page
 
 ## Logic app flow
 
-![Logic App flow](logic_app_flow.png)
+The template generates 3 separate Logic Apps, each taking care of one step in the total process. The relevant settings and keys are prefilledby the template into these logic apps. 
 
-## Advanced template
-As HTTP calls in Logic Apps time out after 2 minutes, any upload that takes longer will time out the basic logic app. The advanced template takes care of that by making use of callbacks for both the VideoIndexer upload as well as the ZoomMedia upload. 
+*Logic app #1: Uploads video file to Video Indexer*
 
-This advanced template will generate 3 separate Logic Apps, each taking care of one upload. The VideoIndexer and Logic Apps keys are present in each of these. 
+![Logic App flow  #1](logic_app_flow_1.png)
 
-![Logic App flow advanced #1](logic_app_flow_adv1.png)
-*Logic app #1*
+*Logic app #2: Uploads video file to Zoom Media*
 
-![Logic App flow advanced #2](logic_app_flow_adv2.png)
-*Logic app #2*
+![Logic App flow  #2](logic_app_flow_2.png)
 
-![Logic App flow advanced #3](logic_app_flow_adv3.png)
-*Logic app #3*
+*Logic app #3_ Updates VTT file in Video Indexer*
+
+![Logic App flow  #3](logic_app_flow_3.png)
 
 ## More information
 For more information on how to use the Video Indexer API please see [this blog post](https://blogs.msdn.microsoft.com/golive/2018/03/26/using-microsoft-azure-video-indexer/) by Greg Oliver (@sebastus).
