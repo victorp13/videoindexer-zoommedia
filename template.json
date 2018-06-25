@@ -284,7 +284,7 @@
                                     "X-Zoom-S2T-Token": "@variables('ZoomMediaKey')"
                                 },
                                 "method": "POST",
-                                "uri": "http://ai.zoom-media.nl:8080/api/v1/speech-to-text/session/"
+                                "uri": "https://api.zoommedia.ai/api/v1/speech-to-text/session/"
                             }
                         },
                         "HTTP:_Upload_file_to_ZoomMedia": {
@@ -302,7 +302,7 @@
                                     "X-Zoom-S2T-Token": "@variables('ZoomMediaKey')"
                                 },
                                 "method": "POST",
-                                "uri": "http://ai.zoom-media.nl:8080/api/v1/speech-to-text/session/@{body('HTTP:_Create_session_at_ZoomMedia')['sessionId']}"
+                                "uri": "https://api.zoommedia.ai/api/v1/speech-to-text/session/@{body('HTTP:_Create_session_at_ZoomMedia')['sessionId']}"
                             }
                         },
                         "Initialize_variable:_CallbackURL": {

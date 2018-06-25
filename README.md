@@ -49,7 +49,7 @@ The Video Indexer service does not require signup; one can simply sign in using 
 
 ## How to get the Zoom Media token
 
-The Zoom Media service does require signup; please contact <info@zoommedia.nl>.
+The Zoom Media service does require signup; please contact <info@zoommedia.ai>.
 
 Once signed up, a token can be generated on the Settings page
 
