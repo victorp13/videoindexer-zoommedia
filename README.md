@@ -60,8 +60,6 @@ Once signed up, a token can be generated on the Settings page
 ## Additional notes
 * Note that the file will be indexed _twice_ by VideoIndexer: Once during the initial upload, and once when the VTT is updated in the end. Please wait for the Logic App to completely finish before expecting the video Transcript to be correct in the Video Indexer UI.
 
-* A new version of these Logic Apps using native Video Indexer Connector will be released soon.
-
 ## Logic app flow
 
 The template generates 3 separate Logic Apps, each taking care of one step in the total process. The relevant settings and keys are prefilledby the template into these logic apps. 
