@@ -11,12 +11,13 @@ param (
  )
 
 # Resource location and naming
-$location="West Europe"
+$location="westeurope"
 $randomvalue=$(Get-Random)
 $resourcegroup="rg" + $randomvalue
 $storageaccountname="stor" + $randomvalue
 $containername="uploads"
-$connectionname="conn" + $randomvalue
+$storconnectionname="storconn" + $randomvalue
+$videoconnectionname="videoconn" + $randomvalue
 $logicappname="logic" + $randomvalue
 
 # Creating Resource Group
@@ -38,7 +39,8 @@ New-AzureRmResourceGroupDeployment -Name APIConnectionDeployment -ResourceGroupN
     -TemplateFile .\template.json `
     -subscriptionId $subscriptionId `
     -location $location `
-    -connectionName $connectionname `
+    -storConnectionname $storConnectionname `
+    -videoConnectionName $videoconnectionname `
     -logicapp_name $logicappname `
     -storageAccountName $storageaccountname `
     -storageAccountKey $storageaccountkey `

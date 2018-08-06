@@ -8,7 +8,10 @@
         "location": {
             "type": "string"
         },
-        "connectionName": {
+        "storConnectionName": {
+            "type": "string"
+        },
+        "videoConnectionName": {
             "type": "string"
         },
         "logicapp_name": {
@@ -43,7 +46,7 @@
     "resources": [
         {
             "type": "Microsoft.Web/connections",
-            "name": "[parameters('connectionName')]",
+            "name": "[parameters('storConnectionName')]",
             "apiVersion": "2016-06-01",
             "location": "[parameters('location')]",
             "scale": null,
@@ -55,6 +58,23 @@
                 },
                 "api": {
                     "id": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'),'/managedApis/azureblob')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "name": "[parameters('videoConnectionName')]",
+            "apiVersion": "2016-06-01",
+            "location": "[parameters('location')]",
+            "scale": null,
+            "properties": {
+                "displayName": "[parameters('videoConnectionName')]",
+                "parameterValues": {
+                    "api_key": "[parameters('videoindexerkey')]"
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'),'/managedApis/videoindexer-v2')]"
                 }
             },
             "dependsOn": []
@@ -105,11 +125,7 @@
                     },
                     "actions": {
                         "Create_SAS_URI_by_path": {
-                            "runAfter": {
-                                "Initialize_variable:_VideoIndexerKey": [
-                                    "Succeeded"
-                                ]
-                            },
+                            "runAfter": {},
                             "type": "ApiConnection",
                             "inputs": {
                                 "body": {
@@ -126,33 +142,6 @@
                                 "queries": {
                                     "path": "@triggerBody()?['Path']"
                                 }
-                            }
-                        },
-                        "HTTP:_Get_token_from_VideoIndexer": {
-                            "inputs": {
-                                "headers": {
-                                    "Ocp-Apim-Subscription-Key": "@variables('VideoIndexerKey')"
-                                },
-                                "method": "GET",
-                                "uri": "https://api.videoindexer.ai/auth/@{encodeUriComponent(variables('VideoIndexerRegion'))}/Accounts/@{encodeUriComponent(variables('VideoIndexerAccount'))}/AccessToken?allowEdit=true"
-                            },
-                            "runAfter": {
-                                "Initialize_variable:_CallbackURL": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Http"
-                        },
-                        "HTTP:_Upload_file_to_VideoIndexer": {
-                            "runAfter": {
-                                "HTTP:_Get_token_from_VideoIndexer": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Http",
-                            "inputs": {
-                                "method": "POST",
-                                "uri": "https://api.videoindexer.ai/@{encodeUriComponent(variables('VideoIndexerRegion'))}/Accounts/@{encodeUriComponent(variables('VideoIndexerAccount'))}/Videos?accessToken=@{body('HTTP:_Get_token_from_VideoIndexer')}&name=@{encodeUriComponent(triggerBody()['Name'])}&videoUrl=@{encodeUriComponent(body('Create_SAS_URI_by_path')['WebUrl'])}&privacy=Private&callbackUrl=@{encodeUriComponent(variables('CallbackURL'))}"
                             }
                         },
                         "Initialize_variable:_CallbackURL": {
@@ -172,52 +161,59 @@
                                 ]
                             }
                         },
-                        "Initialize_variable:_VideoIndexerAccount": {
+                        "Get_Account_Access_Token": {
                             "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "VideoIndexerAccount",
-                                        "type": "String",
-                                        "value": "[parameters('videoindexeraccount')]"
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['videoindexer-v2']['connectionId']"
                                     }
-                                ]
+                                },
+                                "method": "get",
+                                "path": "[concat('/auth/', parameters('videoindexerregion'), '/Accounts/', parameters('videoindexeraccount'), '/AccessToken')]",
+                                "queries": {
+                                    "allowEdit": true
+                                }
                             },
                             "runAfter": {
-                                "Initialize_variable:_VideoIndexerRegion": [
+                                "Initialize_variable:_CallbackURL": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
+                            "type": "ApiConnection"
                         },
-                        "Initialize_variable:_VideoIndexerKey": {
+                        "Upload_video_and_index": {
+                            "inputs": {
+                                "body": {
+                                    "$content-type": "multipart/form-data",
+                                    "$multipart": [
+                                        {
+                                            "body": "",
+                                            "headers": {
+                                                "Content-Disposition": "form-data; name=\"body\""
+                                            }
+                                        }
+                                    ]
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['videoindexer-v2']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "[concat('/', parameters('videoindexerregion'), '/Accounts/', parameters('videoindexeraccount'), '/Videos')]",
+                                "queries": {
+                                    "accessToken": "@body('Get_Account_Access_Token')",
+                                    "callbackUrl": "@variables('CallbackURL')",
+                                    "name": "@triggerBody()?['Name']",
+                                    "videoUrl": "@body('Create_SAS_URI_by_path')?['WebUrl']"
+                                }
+                            },
                             "runAfter": {
-                                "Initialize_variable:_VideoIndexerAccount": [
+                                "Get_Account_Access_Token": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "VideoIndexerKey",
-                                        "type": "String",
-                                        "value": "[parameters('videoindexerkey')]"
-                                    }
-                                ]
-                            }
-                        },
-                        "Initialize_variable:_VideoIndexerRegion": {
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "VideoIndexerRegion",
-                                        "type": "String",
-                                        "value": "[parameters('videoindexerregion')]"
-                                    }
-                                ]
-                            },
-                            "runAfter": {},
-                            "type": "InitializeVariable"
+                            "type": "ApiConnection"
                         }
                     },
                     "outputs": {}
@@ -226,16 +222,22 @@
                     "$connections": {
                         "value": {
                             "azureblob": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connectionName'))]",
-                                "connectionName": "[parameters('connectionName')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('storConnectionName'))]",
+                                "connectionName": "[parameters('storConnectionName')]",
                                 "id": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/azureblob')]"
+                            },
+                            "videoindexer-v2": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('videoConnectionName'))]",
+                                "connectionName": "[parameters('videoConnectionName')]",
+                                "id": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/videoindexer-v2')]"
                             }
                         }
                     }
                 }
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', parameters('connectionName'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('storConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('videoConnectionName'))]",
                 "[resourceId('Microsoft.Logic/workflows', concat(parameters('logicapp_name'), '_2'))]"                
             ]
         },
@@ -390,7 +392,12 @@
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "contentVersion": "1.0.0.0",
-                    "parameters": {},
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
                     "triggers": {
                         "manual": {
                             "type": "Request",
@@ -401,87 +408,65 @@
                         }
                     },
                     "actions": {
-                        "HTTP:_Get_token_from_VideoIndexer": {
+                        "Get_Account_Access_Token": {
                             "inputs": {
-                                "headers": {
-                                    "Ocp-Apim-Subscription-Key": "@variables('VideoIndexerKey')"
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['videoindexer-v2']['connectionId']"
+                                    }
                                 },
-                                "method": "GET",
-                                "uri": "https://api.videoindexer.ai/auth/@{variables('VideoIndexerRegion')}/Accounts/@{variables('VideoIndexerAccount')}/Videos/@{triggerOutputs()['headers']['X-VideoId']}/AccessToken?allowEdit=true"
-                            },
-                            "runAfter": {
-                                "Initialize_variable:_VideoIndexerKey": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Http"
-                        },
-                        "HTTP:_Update_transcript_on_VideoIndexer": {
-                            "runAfter": {
-                                "HTTP:_Get_token_from_VideoIndexer": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Http",
-                            "inputs": {
-                                "body": "@triggerBody()",
-                                "method": "PUT",
-                                "uri": "[concat('https://api.videoindexer.ai/@{encodeUriComponent(variables(''VideoIndexerRegion''))}/Accounts/@{encodeUriComponent(variables(''VideoIndexerAccount''))}/Videos/@{triggerOutputs()[''headers''][''X-VideoId'']}/Index/Transcript?accessToken=@{body(''HTTP:_Get_token_from_VideoIndexer'')}&language=', parameters('language'), '&setAsSourceLanguage=true')]"
-                            }
-                        },
-                        "Initialize_variable:_VideoIndexerAccount": {
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "VideoIndexerAccount",
-                                        "type": "String",
-                                        "value": "[parameters('videoindexeraccount')]"
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Initialize_variable:_VideoIndexerRegion": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable:_VideoIndexerKey": {
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "VideoIndexerKey",
-                                        "type": "String",
-                                        "value": "[parameters('videoindexerkey')]"
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Initialize_variable:_VideoIndexerAccount": [
-                                    "Succeeded"
-                                ]
-                            }
-                        },
-                        "Initialize_variable:_VideoIndexerRegion": {
-                        "inputs": {
-                            "variables": [
-                                {
-                                    "name": "VideoIndexerRegion",
-                                    "type": "String",
-                                    "value": "[parameters('videoindexerregion')]"
+                                "method": "get",
+                                "path": "[concat('/auth/', parameters('videoindexerregion'), '/Accounts/', parameters('videoindexeraccount'), '/AccessToken')]",
+                                "queries": {
+                                    "allowEdit": true
                                 }
-                            ]
+                            },
+                            "runAfter": {},
+                            "type": "ApiConnection"
                         },
-                        "runAfter": {},
-                        "type": "InitializeVariable"
-                    }
+                        "Update_Video_Transcript": {
+                            "inputs": {
+                                "body": "@{triggerBody()}",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['videoindexer-v2']['connectionId']"
+                                    }
+                                },
+                                "method": "put",
+                                "path": "[concat('/', parameters('videoindexerregion'), '/Accounts/', parameters('videoindexeraccount'), '/Videos/', '@{triggerOutputs()[''headers''][''X-VideoId'']}', '/Index/Transcript')]",
+                                "queries": {
+                                    "accessToken": "@body('Get_Account_Access_Token')",
+                                    "language": "[parameters('language')]",
+                                    "sendSuccessEmail": false,
+                                    "setAsSourceLanguage": true
+                                }
+                            },
+                            "runAfter": {
+                                "Get_Account_Access_Token": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection"
+                        }
                     },
                     "outputs": {}
                 },
-                "parameters": {}
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "videoindexer-v2": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('videoConnectionName'))]",
+                                "connectionName": "[parameters('videoConnectionName')]",
+                                "id": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/videoindexer-v2')]"
+                            }
+                        }
+                    }
+                }
             },
-            "dependsOn": []
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('storConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('videoConnectionName'))]"               
+            ]
         }
     ]
 }
