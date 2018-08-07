@@ -1,5 +1,9 @@
 # Video Indexer + Zoom Media
 
+_Update August 6, 2018:_ This Logic App now uses the official Video Indexer V2 Connector for Logic Apps.
+
+
+
 ## Introduction
 The Microsoft [Video Indexer](https://www.videoindexer.ai/) service extracts valuable insights from videos, such as spoken words, faces, characters and emotions. The service supports many of the major world languages (but not every language, e.g. Dutch). But there are companies such as Zoom Media that offer a [speech-to-text](https://www.zoommedia.ai/speech-to-text/) service in other languages (e.g. Dutch). Below is a description of how you can use a transcription service provider (such as Zoom Media) in conjunction with Microsoft Video Indexer.
 
