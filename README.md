@@ -14,7 +14,7 @@ Please ensure that you are logged into your Azure environment first in PowerShel
 
 Next we can deploy the required resources using the deploy.ps1 script:
 
-`.\deploy.ps1 -videoindexerregion aaa -videoindexeraccount bbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -language nl-nl
+`.\deploy.ps1 -videoindexerregion aaaaa -videoindexeraccount bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -language nl-nl
 `
 
 The required parameters are:
@@ -28,7 +28,6 @@ The required parameters are:
 - zoommediatoken - see "How to get the Zoom Media token" below
 - language - currently ZoomMedia supports:
     - Dutch: "nl-nl"
-    - Flemish: "nl-be"
     - Norwegian: "nb-no"
     - Danish: "da-dk"
     - Swedish: "sv-se"
