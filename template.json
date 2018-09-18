@@ -280,7 +280,8 @@
                                     ],
                                     "callback_method": "POST",
                                     "callback_url": "@variables('CallbackURL')",
-                                    "language": "[parameters('language')]"
+                                    "language": "[parameters('language')]",
+                                    "punctuation": "true"
                                 },
                                 "headers": {
                                     "X-Zoom-S2T-Token": "@variables('ZoomMediaKey')"
