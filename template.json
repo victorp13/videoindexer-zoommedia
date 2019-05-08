@@ -281,9 +281,10 @@
                                     "callback_method": "POST",
                                     "callback_url": "@variables('CallbackURL')",
                                     "language": "[parameters('language')]",
-                                    "punctuation": "true"
+                                    "punctuation": true
                                 },
                                 "headers": {
+                                    "Content-Type": "application/json",
                                     "X-Zoom-S2T-Token": "@variables('ZoomMediaKey')"
                                 },
                                 "method": "POST",
@@ -302,6 +303,7 @@
                                     "video_url": "@variables('VideoURL')"
                                 },
                                 "headers": {
+                                    "Content-Type": "application/json",
                                     "X-Zoom-S2T-Token": "@variables('ZoomMediaKey')"
                                 },
                                 "method": "POST",
