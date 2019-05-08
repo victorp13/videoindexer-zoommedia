@@ -21,21 +21,21 @@ $videoconnectionname="videoconn" + $randomvalue
 $logicappname="logic" + $randomvalue
 
 # Creating Resource Group
-New-AzureRmResourceGroup -Name $resourcegroup -Location $location
+New-AzResourceGroup -Name $resourcegroup -Location $location
 
 # Creating Storage Account and Container
-New-AzureRmStorageAccount -ResourceGroupName $resourceGroup -Name $storageaccountname -Location $location -SkuName Standard_LRS
-Set-AzureRmCurrentStorageAccount -StorageAccountName $storageaccountname -ResourceGroupName $resourceGroup
-New-AzureStorageContainer -Name $containername
+New-AzStorageAccount -ResourceGroupName $resourceGroup -Name $storageaccountname -Location $location -SkuName Standard_LRS
+Set-AzCurrentStorageAccount -StorageAccountName $storageaccountname -ResourceGroupName $resourceGroup
+New-AzStorageContainer -Name $containername
 
 # Retrieving Subscription ID
-$subscriptionId = (Get-AzureRmContext).Subscription.Id
+$subscriptionId = (Get-AzContext).Subscription.Id
 
 # Retrieving Storage Account Key
-$storageaccountkey = (Get-AzureRmStorageAccountKey -ResourceGroupName $resourcegroup -Name $storageaccountname).Value[0]
+$storageaccountkey = (Get-AzStorageAccountKey -ResourceGroupName $resourcegroup -Name $storageaccountname).Value[0]
 
 # Creating API Connection and Logic App
-New-AzureRmResourceGroupDeployment -Name APIConnectionDeployment -ResourceGroupName $resourcegroup `
+New-AzResourceGroupDeployment -Name APIConnectionDeployment -ResourceGroupName $resourcegroup `
     -TemplateFile .\template.json `
     -subscriptionId $subscriptionId `
     -location $location `
