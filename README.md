@@ -10,7 +10,7 @@ The Microsoft [Video Indexer](https://www.videoindexer.ai/) service extracts val
 The PowerShell script included in this repo will deploy a set of Azure resources that integrate the Microsoft Video Indexer service with Zoom Media's speech-to-text service. This script can be easily updated to work with other transcription service providers to cover a broader range of languages.
 
 ## Deployment
-Please ensure that you are logged into your Azure environment first in PowerShell using a command such as "Connect-AzureRmAccount".
+Please ensure that you are logged into your Azure environment first in PowerShell using a command such as "Connect-AzAccount".
 
 Next we can deploy the required resources using the deploy.ps1 script:
 
