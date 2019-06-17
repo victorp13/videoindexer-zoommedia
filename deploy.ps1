@@ -6,8 +6,9 @@ param (
     [string]$videoindexerregion,
     [string]$videoindexeraccount,
     [string]$videoindexerkey,
+    [string]$videoindexerlanguage,
     [string]$zoommediatoken,
-    [string]$language
+    [string]$zoommedialanguage
  )
 
 # Resource location and naming
@@ -48,5 +49,6 @@ New-AzResourceGroupDeployment -Name APIConnectionDeployment -ResourceGroupName $
     -videoindexerregion $videoindexerregion `
     -videoindexeraccount $videoindexeraccount `
     -videoindexerkey $videoindexerkey `
+    -videoindexerlanguage $videoindexerlanguage `
     -zoommediatoken $zoommediatoken `
-    -language $language
+    -zoommedialanguage $zoommedialanguage

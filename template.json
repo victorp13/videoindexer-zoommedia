@@ -35,10 +35,13 @@
         "videoindexerkey": {
             "type": "string"
         },
+        "videoindexerlanguage": {
+            "type": "string"
+        },
         "zoommediatoken": {
             "type": "string"
         },
-        "language": {
+        "zoommedialanguage": {
             "type": "string"
         }
     },
@@ -280,7 +283,7 @@
                                     ],
                                     "callback_method": "POST",
                                     "callback_url": "@variables('CallbackURL')",
-                                    "language": "[parameters('language')]",
+                                    "language": "[parameters('zoommedialanguage')]",
                                     "punctuation": true
                                 },
                                 "headers": {
@@ -439,7 +442,7 @@
                                 "path": "[concat('/', parameters('videoindexerregion'), '/Accounts/', parameters('videoindexeraccount'), '/Videos/', '@{triggerOutputs()[''headers''][''X-VideoId'']}', '/Index/Transcript')]",
                                 "queries": {
                                     "accessToken": "@body('Get_Account_Access_Token')",
-                                    "language": "[parameters('language')]",
+                                    "language": "[parameters('videoindexerlanguage')]",
                                     "sendSuccessEmail": false,
                                     "setAsSourceLanguage": true
                                 }

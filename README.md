@@ -1,5 +1,6 @@
 # Video Indexer + Zoom Media
 
+_Update June 17, 2019:_ Added parameter for setting the Zoom Media language separately. Also now using the new PowerShell Az Module.
 _Update August 6, 2018:_ This Logic App now uses the official Video Indexer V2 Connector for Logic Apps.
 
 
@@ -14,7 +15,13 @@ Please ensure that you are logged into your Azure environment first in PowerShel
 
 Next we can deploy the required resources using the deploy.ps1 script:
 
-`.\deploy.ps1 -videoindexerregion aaaaa -videoindexeraccount bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -language nl-nl
+`.\deploy.ps1 -videoindexerregion aaaaa -videoindexeraccount bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -videoindexerlanguage nl-nl -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -zoommedialanguage nl-nl
+
+The above example works for Dutch. Here an example for Flemish:
+`.\deploy.ps1 -videoindexerregion aaaaa -videoindexeraccount bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -videoindexerlanguage nl-nl -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -zoommedialanguage nl-be
+
+And this is an example for use with Filipino (Tagalog):
+`.\deploy.ps1 -videoindexerregion aaaaa -videoindexeraccount bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -videoindexerlanguage fil-ph -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -zoommedialanguage tl-ph
 `
 
 The required parameters are:
@@ -25,12 +32,20 @@ The required parameters are:
     - "eastasia"
 - videoindexeraccount - can be found on the Settings page
 - videoindexerkey - see "How to get the Video Indexer key" below
-- zoommediatoken - see "How to get the Zoom Media token" below
-- language - currently ZoomMedia supports:
+- videoindexerlanguage - currently VideoIndexer supports:
     - Dutch: "nl-nl"
     - Norwegian: "nb-no"
     - Danish: "da-dk"
     - Swedish: "sv-se"
+    - Filipino: "fil-ph"
+- zoommediatoken - see "How to get the Zoom Media token" below
+- zoommedialanguage - currently ZoomMedia supports:
+    - Dutch: "nl-nl"
+    - Flemish: "nl-be"
+    - Norwegian: "nb-no"
+    - Danish: "da-dk"
+    - Swedish: "sv-se"
+    - Filipino: "tl-ph"
 
 When running the script the following resources will be deployed:
 * Resource Group
