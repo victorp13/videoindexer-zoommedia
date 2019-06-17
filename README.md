@@ -18,9 +18,11 @@ Next we can deploy the required resources using the deploy.ps1 script:
 `.\deploy.ps1 -videoindexerregion aaaaa -videoindexeraccount bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -videoindexerlanguage nl-nl -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -zoommedialanguage nl-nl
 
 The above example works for Dutch. Here an example for Flemish:
+
 `.\deploy.ps1 -videoindexerregion aaaaa -videoindexeraccount bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -videoindexerlanguage nl-nl -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -zoommedialanguage nl-be
 
 And this is an example for use with Filipino (Tagalog):
+
 `.\deploy.ps1 -videoindexerregion aaaaa -videoindexeraccount bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb -videoindexerkey xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -videoindexerlanguage fil-ph -zoommediatoken yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" -zoommedialanguage tl-ph
 `
 
