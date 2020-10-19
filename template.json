@@ -430,9 +430,39 @@
                             "runAfter": {},
                             "type": "ApiConnection"
                         },
+                        "Initialize_variable:_ZoomMediaKey": {
+                            "runAfter": {
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ZoomMediaKey",
+                                        "type": "String",
+                                        "value": "[parameters('zoommediatoken')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Get_Scriptix_Transcript": {
+                            "runAfter": {
+                                "Initialize_variable:_ZoomMediaKey": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "HTTP",
+                            "inputs": {
+                                "method": "GET",
+                                "uri": "https://api.zoommedia.ai/api/v2/speech-to-text/@{triggerBody()?['sessionId']}/",
+                                "headers": {
+                                    "X-Zoom-S2T-Token": "@variables('ZoomMediaKey')",
+                                    "Accept": "text/vtt"
+                                }
+                            }
+                        },
                         "Update_Video_Transcript": {
                             "inputs": {
-                                "body": "@{triggerBody()}",
+                                "body": "@{body('Get_Scriptix_Transcript')}",
                                 "host": {
                                     "connection": {
                                         "name": "@parameters('$connections')['videoindexer-v2']['connectionId']"
@@ -448,6 +478,9 @@
                                 }
                             },
                             "runAfter": {
+                                "Get_Scriptix_Transcript": [
+                                    "Succeeded"
+                                ],
                                 "Get_Account_Access_Token": [
                                     "Succeeded"
                                 ]
