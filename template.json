@@ -278,7 +278,6 @@
                                 "body": {
                                     "callback_format": "text/vtt",
                                     "callback_headers": [
-                                        "Content-Type: text/plain",
                                         "X-VideoId: @{variables('VideoID')}"
                                     ],
                                     "callback_method": "POST",
@@ -409,7 +408,17 @@
                             "type": "Request",
                             "kind": "Http",
                             "inputs": {
-                                "schema": {}
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "sessionId": {
+                                            "type": "string"
+                                        },
+                                        "zoom_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
                             }
                         }
                     },
@@ -453,7 +462,7 @@
                             "type": "HTTP",
                             "inputs": {
                                 "method": "GET",
-                                "uri": "https://api.zoommedia.ai/api/v2/speech-to-text/@{triggerBody()?['sessionId']}/",
+                                "uri": "https://api.zoommedia.ai/api/v2/speech-to-text/session/@{triggerBody()?['sessionId']}/",
                                 "headers": {
                                     "X-Zoom-S2T-Token": "@variables('ZoomMediaKey')",
                                     "Accept": "text/vtt"
